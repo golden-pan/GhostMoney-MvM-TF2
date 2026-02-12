@@ -58,8 +58,8 @@ Random changes will likely break functionality.
 - Automatic anti-stuck system  
   Kills the player if the teleporter is not reached in time or teleport fails  
 
-- Info popups for state/status feedback
-  Can be disabled  
+- Info popups for state/status feedback - can be disabled
+
 
 - Detects wave fail/success and restart votes  
   Restores previously active states  
