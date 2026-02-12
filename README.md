@@ -60,7 +60,6 @@ Random changes will likely break functionality.
 
 - Info popups for state/status feedback - can be disabled
 
-
 - Detects wave fail/success and restart votes  
   Restores previously active states  
 
@@ -77,24 +76,22 @@ Random changes will likely break functionality.
 
 ## UI
 
-- Draggable UI  
-- Transparent mode  
-- Hide hotkeys in main UI  
+- Draggable UI
+- Cash slider (left-click cash value in main UI)  
+- Class selector (left-click class in main UI)  
 - UI toggles for:
   - AutoCredit  
   - SniperBuy (+ Force)  
   - TpWalk (+ Force)  
-  - Lock TpWalking  
-  - gp_kill  
-
-- Custom hotkeys  
-- Cash slider (left-click cash value in main UI)  
-- Class selector (left-click class in main UI)  
-
-Color states:
-- Gold = Enabled  
-- Orange = Force mode  
-- Grey = Disabled  
+    - Transparent mode
+    - Hide Hotkeys in UI
+    - Hide Info Pop ups
+    - Party gp_kill command
+    - Lock TpWalking
+ - Shows current toggles
+  - Gold = Enabled  
+  - Orange = Force mode  
+  - Grey = Disabled  
 
 Cleanup function available for stuck upgrade-related states (Default K)
 
