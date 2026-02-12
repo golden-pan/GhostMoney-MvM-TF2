@@ -105,10 +105,6 @@ Cleanup function available for stuck upgrade-related states (Default K)
 
 ## Usage
 
-Gold = On  
-Orange = Force mode On  
-Grey = Off  
-
 Open options by right-clicking the main UI.
 
 ### Autocredit (Default: L)
