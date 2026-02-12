@@ -120,14 +120,14 @@ AutoCredit can remain enabled permanently and will automatically restart on a ne
 
 ### SniperBuy (Default: J or via UI toggle)
 
-Works if:
--If you are currently playing Sniper  
+Works if
+you have selected Sniper  
 
 - Buys Godspot upgrades before Wave 1  
 - After that, usually only after death/respawn  
 - Saved per current server session, so not every death/respawn will re-trigger it.
 
-Force SniperBuy:
+Force SniperBuy
 - Hold J for 2 seconds or via UI toggle  
 - Buys upgrades inside station only (no autowalk)  
 
@@ -135,15 +135,15 @@ Force SniperBuy:
 
 ### TpWalk (Defautl: O or via UI toggle)
 
-Works if:
--If you are currently playing Sniper  
+Works if
+you have selected Sniper  
 
 - Walks to nearest teleporter after Sniperbuy bought Godspot upgrades.
 - Works without Sniperbuy on too.
 - Re-triggers after death/respawn  
 - Saved per server session
 
-Force TpWalk:
+Force TpWalk - WORKS FOR ANY CLASS:
 - Hold O for 2 seconds or via UI toggle
 - Works for any class  
 - Ignores upgrade restrictions  
@@ -152,7 +152,7 @@ Force TpWalk:
 Lock TpWalking:
 - Prevents movement while searching/walking to teleporter  
 
-Miscs are explained in "Features"
+### Other features are already explained in "Features"
 
 ---
 
