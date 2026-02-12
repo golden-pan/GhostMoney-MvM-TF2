@@ -88,7 +88,7 @@ Random changes will likely break functionality.
     - Hide Info Pop ups
     - Party gp_kill command
     - Lock TpWalking
- - Shows current toggles
+ - Shows current toggles: 
 Gold = Enabled  / Orange = Force mode  / Grey = Disabled  
 
 Cleanup function available for stuck upgrade-related states (Default K)
