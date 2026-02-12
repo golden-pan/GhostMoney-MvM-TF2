@@ -12,45 +12,10 @@ Please read the full instructions before reporting that something does not work.
 
 ---
 
-### TpWalk
-
-If SniperBuy is enabled, the script:
-
-1. Walks to the upgrade station  
-2. Purchases required upgrades  
-3. Walks to the nearest visible teleporter  
-
-After death/respawn (or if SniperBuy is disabled):
-- Automatically walks again  
-
-Saved per server until map/server change.
-
----
-
-### Force TpWalk
-
-Enables TpWalk without class, money, or upgrade restrictions.
-
-- Acts like normal TpWalk  
-- Triggers again after respawn/death  
-- Activation: Hold O for 2 seconds or via UI toggle
-
----
-
 ### Ping Note
 
 Script behavior is ping-based.  
 With high ping, money automation and sniper upgrade purchasing may respond slower.
-
----
-
-### Reset Commands
-
-If UI or settings break or become stuck:
-
-- `gp_gm_ui_reset` → Resets UI position to screen center  
-- `gp_gm_cfg_reset` → Fully resets all configuration values
-Alternatively, delete the config file located in the gp_ghost folder inside your Team Fortress 2 directory
 
 ---
 
@@ -131,7 +96,7 @@ Color states:
 - Orange = Force mode  
 - Grey = Disabled  
 
-Cleanup function available for stuck upgrade-related states.
+Cleanup function available for stuck upgrade-related states (Default K)
 
 ---
 
@@ -197,7 +162,16 @@ Lock TpWalking:
 - Prevents movement while searching/walking to teleporter  
 
 Miscs are explained in "Features"
+
 ---
+
+### Reset Commands
+
+If UI or settings break or become stuck:
+
+- `gp_gm_ui_reset` → Resets UI position to screen center  
+- `gp_gm_cfg_reset` → Fully resets all configuration values
+Alternatively, delete the config file located in the gp_ghost folder inside your Team Fortress 2 directory
 
 ## Commands
 
