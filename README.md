@@ -55,8 +55,25 @@ Random changes will likely break functionality.
 - Lock TpWalking  
   Prevents movement while walking to the teleporter (enabled by default)  
 
-- Automatic anti-stuck system  
+- Anti-stuck for (Force) TpWalk 
   Kills the player if the teleporter is not reached in time or teleport fails  
+
+- Anti-stuck for SniperBuy  
+  Failsafe recovery if SniperBuy gets stuck during its sequence  
+
+- AutoF4 behavior  
+  - During pre-wave 1, it stays off until teleport/start is reached, then continues normally  
+  - On wave fail/restart:
+    - Pre-wave 1 restart: behaves like normal pre-wave logic (off until teleport/start)
+    - Post-wave 1 restart: waits 30 seconds, then resumes normal behavior
+
+- Anti-aimbot handling while TpWalking with Lock TpWalking enabled  
+  - Aimbot is suppressed during locked TpWalk movement  
+  - Aimbot is turned on 1 second after reaching teleporter (not while in the waiting state), regardless of whether it was on or off before
+
+- Smart F4
+  - After wave fail/restart, respawn handling is locked for 8 seconds in case you die between old and new round
+  - Should prevent unwanted Medic revives
 
 - Info popups for state/status feedback - can be disabled
 
@@ -88,6 +105,8 @@ Random changes will likely break functionality.
     - Hide Info Pop ups
     - Party gp_kill command
     - Lock TpWalking
+    - First Join: Pick Medic
+    - Smart F4
  - Shows current toggles: 
 Gold = Enabled  / Orange = Force mode  / Grey = Disabled  
 
@@ -126,6 +145,7 @@ you have selected Sniper
 - Buys Godspot upgrades before Wave 1  
 - After that, usually only after death/respawn  
 - Saved per current server session, so not every death/respawn will re-trigger it.
+- Includes an anti-stuck failsafe for SniperBuy sequence issues
 
 Force SniperBuy
 - Hold J for 2 seconds or via UI toggle  
@@ -133,7 +153,7 @@ Force SniperBuy
 
 ---
 
-### TpWalk (Defautl: O or via UI toggle)
+### TpWalk (Default: O or via UI toggle)
 
 Works if
 you have selected Sniper  
@@ -151,6 +171,8 @@ Force TpWalk - WORKS FOR ANY CLASS:
 
 Lock TpWalking:
 - Prevents movement while searching/walking to teleporter  
+- While Lock TpWalking is active, anti-aimbot protection is applied during movement  
+- Aimbot is automatically turned on 1 second after reaching teleporter
 
 ### Other features are already explained in "Features"
 
