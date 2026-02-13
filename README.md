@@ -75,6 +75,9 @@ Random changes will likely break functionality.
   - After wave fail/restart, respawn handling is locked for 8 seconds in case you die between old and new round
   - Should prevent unwanted Medic revives
 
+- First Join: Pick Medic
+  - On first join, it will automatically select Medic during pre-wave 1.
+
 - Info popups for state/status feedback - can be disabled
 
 - Detects wave fail/success and restart votes  
