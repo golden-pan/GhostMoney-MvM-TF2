@@ -7,7 +7,7 @@ Use at your own risk and responsibility.
 
 ---
 
-## Important
+### Important
 
 Please read the full instructions before reporting that something does not work.
 
