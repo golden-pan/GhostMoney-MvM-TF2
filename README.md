@@ -97,7 +97,7 @@ The Lua file is minified, so it may look unusual when you open it.
 
 - Emergency disable (default: **X**)  
   - Disables all active toggles  
-  - Press again within 60 seconds to restore previously active toggles (useful if something goes wrong or manual action is needed)
+    - Press again within 60 seconds to restore previously active toggles (useful if something goes wrong or manual action is needed)
 
 - Detects wave fails and restart votes  
   - Restores previously active states and prepares for the current wave state and active settings
