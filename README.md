@@ -85,7 +85,7 @@ The Lua file is minified, so it may look unusual when you open it.
   - !! **DISABLE CLASS AUTO-PICK IN YOUR LBOX MENU.** (Lua Target Class can stay enabled)
 
 - Smart F4  
-  - During pre-wave 1, it stays off until teleport/start is reached, then continues normally  
+  - During pre-wave 1, it stays off until threshold is reached or teleported via TpWalk, then continues normally  
   - On wave fail/restart:  
     - Pre-wave 1 restart: behaves like normal pre-wave logic (off until teleport/start)  
     - Post-wave 1 restart: waits 30 seconds, then resumes normal behavior
