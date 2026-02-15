@@ -84,7 +84,6 @@ The Lua file is minified, so it may look unusual when you open it.
   - On first join, it automatically selects Medic during pre-wave 1 for AutoCredit
   - **DISABLE CLASS AUTO-PICK IN YOUR LBOX MENU.** (Lua Target Class can stay enabled)
 
-
 - Smart F4  
   - During pre-wave 1, it stays off until teleport/start is reached, then continues normally  
   - On wave fail/restart:  
@@ -96,6 +95,9 @@ The Lua file is minified, so it may look unusual when you open it.
   - Helps prevent unwanted Medic revives  
   - After wave fail/restart, it is locked for 8 seconds in case you die between old and new round state
  
+- Auto Disconnect  
+  - Automatically disconnects at the end of the match
+
 - Configurable hotkeys for main features
 
 - Cleanup function available for stuck upgrade-related states (default: **K**)
