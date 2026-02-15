@@ -82,7 +82,7 @@ The Lua file is minified, so it may look unusual when you open it.
 
 - First Join Medic  
   - On first join, it automatically selects Medic during pre-wave 1 for AutoCredit
-  !! **DISABLE CLASS AUTO-PICK IN YOUR LBOX MENU.** (Lua Target Class can stay enabled)
+  - !! **DISABLE CLASS AUTO-PICK IN YOUR LBOX MENU.** (Lua Target Class can stay enabled)
 
 - Smart F4  
   - During pre-wave 1, it stays off until teleport/start is reached, then continues normally  
