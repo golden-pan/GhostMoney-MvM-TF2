@@ -200,11 +200,6 @@ Works if you selected Sniper.
 
 Both can remain enabled permanently and will automatically resume after death/respawn, on a new server, after a map restart/fail, or when toggled again.
 
-**Lock TpWalking**
-- Prevents movement while searching/walking to the teleporter  
-- While Lock TpWalking is active, anti-aimbot protection is applied during movement  
-  - Aimbot is automatically turned on 1 second after reaching teleporter, even if it was off beforehand
-
 ### Other features are already explained in "Features"
 
 ---
