@@ -55,7 +55,7 @@ The Lua file is minified, so it may look unusual when you open it.
 ### Misc
 
 - Target Class & Money Threshold  
-  Set both by left-clicking **Class** or **Cash** in the main UI.
+  - Set both by left-clicking **Class** or **Cash** in the main UI.
 
 - Anti-stuck for (Force) TpWalk and SniperBuy (always on)  
   - Kills the player if the teleporter is not reached in time or teleport fails  
