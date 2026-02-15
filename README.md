@@ -63,11 +63,11 @@ The Lua file is minified, so it may look unusual when you open it.
 
 - Optional party-chat kill command: `gp_kill`  
   - Kills you when someone in your party chat types the command  
-    - Intended for recovery if you are AFK and fall off the Godspot
+    Intended for recovery if you are AFK and fall off the Godspot
 
 - Optional party-chat leave command: `gp_leave`  
   - Disconnects you from the current server when someone in your party chat types the command  
-    - Intended for leaving a lobby while AFK if a requeue is needed
+    Intended for leaving a lobby while AFK if a requeue is needed
 
 - Lock TpWalking  
   - Prevents movement while walking to the teleporter (enabled by default)  
