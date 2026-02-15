@@ -304,7 +304,6 @@ hideHotkeysInUI = false,
 hideInfoPopups = false,
 partyGpKillEnabled = false,
 partyGpLeaveEnabled = false,
-autoDisconnectEnabled = false,
 autoWalkEnabled = false,
 autoBuyEnabled = false,
 forceSniperBuyEnabled = false,
@@ -398,9 +397,13 @@ local now = ((globals and globals.CurTime and globals.CurTime()) or 0)
 if (tpClassSwapUnlockUntil or 0) > now then
 return false
 end
+local isForce = (tpForceModeEnabled == true)
 local movingNow = (teleporterConfig and teleporterConfig.autoWalkEnabled == true) and (not teleporterJustUsed)
 local waitingNow = (tpIsWaitingForTeleporter == true) or (tpNoTeleFallbackActive == true)
-local verifyingNow = (tpUseVerifyActive == true)
+local verifyingNow = (tpUseVerifyActive == true) and (not teleporterJustUsed)
+if isForce then
+return movingNow
+end
 return (movingNow or waitingNow or verifyingNow)
 end
 function GP_TP_ApplyMovementLock(cmd)
@@ -614,46 +617,6 @@ gpF4PendingRejoinCycle = false
 gpF4RequireTpForReady = false
 gpF4LastApplied = nil
 gpF4Wave2FailPauseUntil = gpF4Wave2FailPauseUntil or 0
-local gpAutoDisconnectTriggered = false
-local function GP_AutoDisconnectTick()
-if not (config and config.autoDisconnectEnabled == true) then
-gpAutoDisconnectTriggered = false
-return
-end
-local inEnd = false
-pcall(function()
-if gamecoordinator and gamecoordinator.InEndOfMatch then
-inEnd = (gamecoordinator.InEndOfMatch() == true)
-end
-end)
-if not inEnd then
-local hasLive = nil
-pcall(function()
-if gamecoordinator and gamecoordinator.HasLiveMatch then
-hasLive = (gamecoordinator.HasLiveMatch() == true)
-end
-end)
-if hasLive == false then
-gpAutoDisconnectTriggered = false
-end
-return
-end
-if gpAutoDisconnectTriggered then
-return
-end
-gpAutoDisconnectTriggered = true
-pcall(function()
-if gamecoordinator and gamecoordinator.AbandonMatch then
-gamecoordinator.AbandonMatch()
-end
-end)
-pcall(function()
-if client and client.Command then
-client.Command("disconnect", true)
-end
-end)
-AddNotification("Auto Disconnect triggered - abandoned and disconnected", "info")
-end
 function GP_F4_IsFeatureEnabled()
 return (config and config.mvmReadyTpCycleEnabled == true)
 end
@@ -793,7 +756,7 @@ local preWave = GP_F4_IsPreWave1State()
 gpF4PendingRejoinCycle = false
 gpF4RequireTpForReady = (preWave and true or false)
 GP_F4_Sync("feature_enable", true)
-AddNotification("Smart AutoF4 Enabled - Pre Wave 1 waits till threshold or teleported", preWave and "warning" or "success", preWave and 4.8 or 3.8)
+AddNotification("Smart AutoF4 Enabled - Pre Wave 1 waits till teleported", preWave and "warning" or "success", preWave and 4.8 or 3.8)
 else
 gpF4LastApplied = nil
 AddNotification("Smart AutoF4 Disabled", "info", 3.5)
@@ -1083,11 +1046,6 @@ thresholdNotificationShown = true
 medicThresholdReached = true
 gpPhase = "SNIPER_BUY"
 AddNotification("Money threshold ($" .. tostring(config.moneyThreshold) .. ") reached!", "warning")
-if GP_F4_IsFeatureEnabled and GP_F4_IsFeatureEnabled() and GP_F4_IsPreWave1State and GP_F4_IsPreWave1State() then
-gpF4RequireTpForReady = false
-gpF4PendingRejoinCycle = false
-GP_F4_Sync("threshold_reached", true)
-end
 shouldGuidePlayerBuy = false
 buyMidpoint = nil
 if pauseAutoWalk then
@@ -1403,7 +1361,6 @@ if config.hideHotkeysInUI == nil then config.hideHotkeysInUI = false end
 if config.hideInfoPopups == nil then config.hideInfoPopups = false end
 if config.partyGpKillEnabled == nil then config.partyGpKillEnabled = false end
 if config.partyGpLeaveEnabled == nil then config.partyGpLeaveEnabled = false end
-if config.autoDisconnectEnabled == nil then config.autoDisconnectEnabled = false end
 if config.tpWalkMoveLockEnabled == nil then config.tpWalkMoveLockEnabled = true end
 if config.tpWalkWhitelistEnabled == nil then config.tpWalkWhitelistEnabled = false end
 if config.firstJoinPickMedic == nil then config.firstJoinPickMedic = false end
@@ -1625,7 +1582,6 @@ if string.find(message, "Hide Info Pop ups Disabled", 1, true) then return true 
 if string.find(message, "Hide Hotkeys in UI ", 1, true) then return true end
 if string.find(message, "Party gp_kill command ", 1, true) then return true end
 if string.find(message, "Party gp_leave command ", 1, true) then return true end
-if string.find(message, "Auto Disconnect ", 1, true) then return true end
 if string.find(message, "Party gp_leave received", 1, true) then return true end
 if string.find(message, "Lock TpWalking ", 1, true) then return true end
 if string.find(message, "TpWalk Whitelist ", 1, true) then return true end
@@ -2001,7 +1957,6 @@ if hadLocalPlayer then
 hadLocalPlayer = false
 currentServer = serverIP
 HardReset("Loading/Disconnected - Reset state")
-gpAutoDisconnectTriggered = false
 GP_F4_OnDisconnectCycle("disconnect")
 GP_ClearFirstJoinPickMedicWindow()
 if keepForceSniper then
@@ -2024,7 +1979,6 @@ if not hadLocalPlayer then
 hadLocalPlayer = true
 currentServer = serverIP
 HardReset("Joined game - Reset state")
-gpAutoDisconnectTriggered = false
 if gpSuppressFirstJoinPickMedicOnAttach then
 gpSuppressFirstJoinPickMedicOnAttach = false
 GP_ClearFirstJoinPickMedicWindow()
@@ -2121,7 +2075,6 @@ return
 end
 currentServer = serverIP
 HardReset("New server/state detected")
-gpAutoDisconnectTriggered = false
 GP_F4_OnDisconnectCycle("new_server")
 GP_ArmFirstJoinPickMedicWindow()
 if keepForceSniper then
@@ -3606,7 +3559,7 @@ end
 return hadAny
 end
 local GP_IsSniper
-function TriggerSniperUpgrades()
+local function TriggerSniperUpgrades()
 local currentTime = globals.CurTime()
 if (currentTime - (lastSniperTriggerTime or 0)) < (SNIPER_TRIGGER_DEBOUNCE or 0.25) then
 return
@@ -3650,7 +3603,7 @@ nextUpgradeTime = currentTime + SNIPER_UPGRADE_DELAY
 end
 IsInSpawnRoom = function(player)
 if not player then return false end
-function tryGetInt(...)
+local function tryGetInt(...)
 local ok, v = pcall(player.GetPropInt, player, ...)
 if not ok then return nil end
 if type(v) == "number" then return v end
@@ -3673,7 +3626,7 @@ v = tryGetInt('m_Shared', 'm_bInSpawnRoom')
 if v ~= nil then return v == 1 end
 return false
 end
-function TriggerMoneyExploit()
+local function TriggerMoneyExploit()
 local currentTime = globals.CurTime()
 if currentTime < (medicTriggerDebounceUntil or 0) then
 return
@@ -3765,7 +3718,7 @@ local watermarkY = config.watermarkY
 local isDragging = false
 local dragOffsetX, dragOffsetY = 0, 0
 local uiClampSavedAt = 0
-function ClampUIPos(screenW, screenH, boxW, boxH)
+local function ClampUIPos(screenW, screenH, boxW, boxH)
 local x, y = watermarkX, watermarkY
 if x < 0 then x = 0 end
 if y < 0 then y = 0 end
@@ -3814,7 +3767,7 @@ end
 end
 end
 __keyNameCache = __keyNameCache or {}
-function GP_KeyName(code)
+local function GP_KeyName(code)
 if type(code) ~= "number" then return "?" end
 if __keyNameCache[code] then return __keyNameCache[code] end
 for name, c in pairs(_G) do
@@ -3856,14 +3809,14 @@ instantRespawnRetryAt = 0,
 instantRespawnRetryDone = false,
 instantRespawnRetryCount = 0,
 }
-function GP_KeyPressedBind(code)
+local function GP_KeyPressedBind(code)
 if type(code) ~= "number" then return false end
 local down = input.IsButtonDown(code)
 local was = misc.keyPrev[code] or false
 misc.keyPrev[code] = down
 return down and not was
 end
-function GP_TryCaptureHotkey()
+local function GP_TryCaptureHotkey()
 if not misc.waitKey then return end
 if not IsUIInputAllowed() then return end
 if input.IsButtonDown(KEY_ESCAPE) then
@@ -3924,7 +3877,7 @@ end
 end
 end
 local __hotkeyPrev = {}
-function GP_KeyPressedHK(code)
+local function GP_KeyPressedHK(code)
 if type(code) ~= "number" then return false end
 local down = input.IsButtonDown(code)
 local was = __hotkeyPrev[code] or false
@@ -3932,7 +3885,7 @@ __hotkeyPrev[code] = down
 return down and not was
 end
 
-function GP_InstantRespawnNow()
+local function GP_InstantRespawnNow()
 local t = 0
 pcall(function()
 if globals and globals.RealTime then
@@ -3945,7 +3898,7 @@ if type(t) ~= "number" then t = 0 end
 return t
 end
 
-function GP_InstantRespawnSendRequest()
+local function GP_InstantRespawnSendRequest()
 local kv = [[ "MVM_Revive_Response" { "accepted" "1" } ]]
 pcall(function()
 if engine and engine.SendKeyValues then
@@ -4160,7 +4113,7 @@ now = now or ((globals and globals.CurTime and globals.CurTime()) or 0)
 local tpModeOn = (tpForceModeEnabled == true) or ((config and config.tpWalkEnabled) == true)
 local lockConfigured = tpModeOn and ((config and config.tpWalkMoveLockEnabled) == true)
 
-function GP_TP_GetSuppressStates(ts)
+local function GP_TP_GetSuppressStates(ts)
 local autoWalking = (((teleporterConfig and teleporterConfig.autoWalkEnabled) == true) and (not teleporterJustUsed))
 local movingRaw = autoWalking
 or (tpIsWaitingForTeleporter == true)
@@ -4248,10 +4201,10 @@ GP_TP_AIMBOT_CTL.restoreAt = 0
 GP_TP_AIMBOT_CTL.snapshot = nil
 GP_TP_AIMBOT_CTL.lastSuppressedAt = 0
 end
-function GP_DrawMiscButton(x, y, w, h, label, accent, mx, my, active, alphaMul)
+local function GP_DrawMiscButton(x, y, w, h, label, accent, mx, my, active, alphaMul)
 alphaMul = alphaMul or 1
 if alphaMul < 0 then alphaMul = 0 elseif alphaMul > 1 then alphaMul = 1 end
-function AM(a) return math.floor((a or 255) * alphaMul + 0.5) end
+local function AM(a) return math.floor((a or 255) * alphaMul + 0.5) end
 local hover = (mx >= x and mx <= x + w and my >= y and my <= y + h)
 local base = {150,150,150,255}
 local col = (hover or active) and accent or base
@@ -4294,7 +4247,7 @@ GP_MiscResetKeyBindState()
 end
 function GP_MiscSubItemCount(cat)
 if cat == "toggles" then return 5 end
-if cat == "misc" then return 11 end
+if cat == "misc" then return 10 end
 if cat == "hotkeys" then return 5 end
 return 0
 end
@@ -4494,8 +4447,6 @@ local f4CycleAccent = forceAccent
 local m9 = GP_DrawMiscButton(sbx, sby, swi, bh, "Smart AutoF4: " .. (config.mvmReadyTpCycleEnabled and "ON" or "OFF"), f4CycleAccent, mx, my, config.mvmReadyTpCycleEnabled, aMul)
 sby = sby + bh + gap
 local m10 = GP_DrawMiscButton(sbx, sby, swi, bh, "Instant Respawn: " .. (config.instantRespawnEnabled and "ON" or "OFF"), forceAccent, mx, my, config.instantRespawnEnabled, aMul)
-sby = sby + bh + gap
-local m11 = GP_DrawMiscButton(sbx, sby, swi, bh, "Auto Disconnect: " .. (config.autoDisconnectEnabled and "ON" or "OFF"), forceAccent, mx, my, config.autoDisconnectEnabled, aMul)
 if misc.armed and lPressed and ((misc.debounceFrames or 0) <= 0) then
 if m1 then
 config.transparentEnabled = not config.transparentEnabled
@@ -4557,14 +4508,6 @@ config.instantRespawnEnabled = not config.instantRespawnEnabled
 SaveConfig(GP_CfgPath(), config)
 misc.debounceFrames = 10
 AddNotification("Instant Respawn " .. (config.instantRespawnEnabled and "Enabled" or "Disabled"), "info")
-elseif m11 then
-config.autoDisconnectEnabled = not config.autoDisconnectEnabled
-if not config.autoDisconnectEnabled then
-gpAutoDisconnectTriggered = false
-end
-SaveConfig(GP_CfgPath(), config)
-misc.debounceFrames = 10
-AddNotification("Auto Disconnect " .. (config.autoDisconnectEnabled and "Enabled" or "Disabled"), "info")
 end
 end
 elseif misc.category == "hotkeys" then
@@ -4664,7 +4607,7 @@ local cls = GP_GetClassId(me)
 if not cls then return nil end
 return GP_CLASS_NAME[cls]
 end
-function GP_UpdatePostWaveSwapLatch()
+local function GP_UpdatePostWaveSwapLatch()
 if acPostWaveSwapLatched then
 return true
 end
@@ -4908,9 +4851,9 @@ return false
 end
 return nil
 end
-function GP_TP_IsArmedAndAllowed()
+local function GP_TP_IsArmedAndAllowed()
 local now = (globals and globals.CurTime and globals.CurTime()) or 0
-function tryReleaseRoundReloadGate()
+local function tryReleaseRoundReloadGate()
 if not tpWaitForRoundReload then
 tpWaitForRoundReloadArmedAt = 0
 return
@@ -4979,7 +4922,7 @@ if tpWaitForRoundReload then return false end
 if tpToggleNeedsTrigger then return false end
 return (sniperUpgradeCompleted == true)
 end
-function GP_Draw()
+local function GP_Draw()
 UI_Color(255, 255, 255, 255)
 local lboxMenuOpen = (gui and gui.IsMenuOpen and gui.IsMenuOpen()) or false
 if engine.IsGameUIVisible() and not lboxMenuOpen then
@@ -4989,7 +4932,6 @@ local me = entities.GetLocalPlayer()
 if me then
 CheckServerChange()
 end
-GP_AutoDisconnectTick()
 UI.notifications = UI.notifications or {}
 if me then
 CheckServerChange()
@@ -5249,7 +5191,7 @@ local lwFR = draw.GetTextSize(lowerFarRight)
 local totalLower = lwL + lwG + lwM + lwG2 + lwR + lwG3 + lwFR
 local centerX = watermarkX + (width / 2) - (totalLower / 2)
 if config.autoWalkEnabled or autoModeWalkActive then
-UI_Color(table.unpack(GP_UI.colors.gold))
+UI_Color(GP_UI.colors.gold[1], GP_UI.colors.gold[2], GP_UI.colors.gold[3], infoA)
 else
 UI_Color(table.unpack(GP_UI.colors.textDim))
 end
@@ -5257,7 +5199,7 @@ SafeText(centerX, watermarkY + 22, lowerLeft)
 UI_Color(table.unpack(GP_UI.colors.textDim))
 SafeText(centerX + lwL, watermarkY + 22, lowerGap)
 if globals.CurTime() < cleanupFlashUntil then
-UI_Color(table.unpack(GP_UI.colors.gold))
+UI_Color(GP_UI.colors.gold[1], GP_UI.colors.gold[2], GP_UI.colors.gold[3], infoA)
 else
 UI_Color(table.unpack(GP_UI.colors.textDim))
 end
@@ -5267,7 +5209,7 @@ SafeText(centerX + lwL + lwG + lwM, watermarkY + 22, lowerGap2)
 if forceSniperBuyModeEnabled then
 UI_Color(255, 140, 0, infoA)
 elseif config.autoBuyEnabled then
-UI_Color(table.unpack(GP_UI.colors.gold))
+UI_Color(GP_UI.colors.gold[1], GP_UI.colors.gold[2], GP_UI.colors.gold[3], infoA)
 else
 UI_Color(table.unpack(GP_UI.colors.textDim))
 end
@@ -5277,7 +5219,7 @@ SafeText(centerX + lwL + lwG + lwM + lwG2 + lwR, watermarkY + 22, lowerGap3)
 if tpForceModeEnabled then
 UI_Color(255, 140, 0, infoA)
 elseif config.tpWalkEnabled then
-UI_Color(table.unpack(GP_UI.colors.gold))
+UI_Color(GP_UI.colors.gold[1], GP_UI.colors.gold[2], GP_UI.colors.gold[3], infoA)
 else
 UI_Color(table.unpack(GP_UI.colors.textDim))
 end
@@ -5326,7 +5268,7 @@ panelY = watermarkY - requiredH - 6
 end
 panelH = requiredH
 local panelYDraw = panelY + math.floor((1 - gpDropdown.anim) * 8)
-function PanelColor(r,g,b,a)
+local function PanelColor(r,g,b,a)
 UI_Color(r, g, b, math.floor((a or 255) * gpDropdown.anim))
 end
 if mousePressed and not isDragging then
@@ -5578,6 +5520,7 @@ end)
 return t
 end
 function GP_RST_IsTransitionLockActive()
+if GP_RST == nil then GP_RST = {} end
 local now = GP_RST_Now()
 local k = tostring(GP_RST.kind or "unknown")
 if now < (GP_RST.detectGlobalUntil or 0) then
@@ -5680,6 +5623,7 @@ AddNotification("Map fail/restart detected - reset state", "warning", 5.0)
 GP_RST_Log("detected popup: kind=" .. tostring(k) .. " by=" .. tostring(reason))
 end
 function GP_RST_Reset(reason)
+if GP_RST == nil then GP_RST = {} end
 GP_RST.contextUntil = 0
 GP_RST.queueAt = 0
 GP_RST.queueReason = "none"
@@ -5763,6 +5707,7 @@ GP_RST.kind = newKind
 end
 end
 function GP_RST_Arm(reason, kindOverride)
+if GP_RST == nil then GP_RST = {} end
 local t = GP_RST_Now()
 local untilT = t + GP_RST_CONTEXT_SECONDS
 if untilT > (GP_RST.contextUntil or 0) then
@@ -5856,6 +5801,7 @@ GP_RST_Log(
 )
 end
 function GP_RST_Queue(reason)
+if GP_RST == nil then GP_RST = {} end
 local t = GP_RST_Now()
 if t < (GP_RST.cooldownUntil or 0) then
 return
@@ -5938,6 +5884,7 @@ end
 AddNotification("Force TpWalk armed after fail/restart - waiting for round reload", "warning")
 end
 function GP_RST_DecideTarget()
+if GP_RST == nil then GP_RST = {} end
 local sourceWave = GP_RST.sourceWave
 if type(sourceWave) ~= "number" then
 sourceWave = 0
@@ -6000,6 +5947,7 @@ end
 return nil, "no_matching_path", "none"
 end
 function GP_RST_PrepareMedicCycle()
+if GP_RST == nil then GP_RST = {} end
 ForceCleanup()
 acPostWaveSwapLatched = false
 if GP_F4_IsFeatureEnabled and GP_F4_IsFeatureEnabled() then
@@ -6048,6 +5996,7 @@ GP_RST.medicCycleHardResetSince = rstNow
 GP_RST.medicCycleSwapLockUntil = rstNow + 180.0
 end
 function GP_RST_PrepareSniperCycle()
+if GP_RST == nil then GP_RST = {} end
 ForceCleanup()
 gpPhase = "SNIPER_BUY"
 isUpgradingSniper = false
@@ -6068,6 +6017,7 @@ teleporterJustUsed = false
 tpNoTeleFallbackActive = false
 end
 function GP_RST_StartForce(targetClass, reason)
+if GP_RST == nil then GP_RST = {} end
 if not targetClass or targetClass == "" then return end
 GP_RST.forceActive = true
 GP_RST.forceTarget = tostring(targetClass)
@@ -6085,6 +6035,7 @@ GP_RST.forceLockUntil = GP_RST_Now() + baseLock
 GP_RST_Log("FORCE START target=" .. tostring(GP_RST.forceTarget) .. " reason=" .. tostring(GP_RST.forceReason))
 end
 function GP_RST_StopForce(reason)
+if GP_RST == nil then GP_RST = {} end
 GP_RST_Log("FORCE STOP: " .. tostring(reason))
 GP_RST.forceActive = false
 GP_RST.forceTarget = ""
@@ -6116,6 +6067,7 @@ end
 return false
 end
 function GP_RST_TickForce()
+if GP_RST == nil then GP_RST = {} end
 if not GP_RST.forceActive then return end
 local t = GP_RST_Now()
 local me = entities.GetLocalPlayer()
@@ -6156,6 +6108,7 @@ GP_RST_Log("force retry=" .. tostring(GP_RST.forceRetries) .. " target=" .. tost
 end
 end
 function GP_RST_TickState()
+if GP_RST == nil then GP_RST = {} end
 local prevWave = GP_RST.lastWave
 local prevRound = GP_RST.lastRound
 local prevSetup = GP_RST.lastSetup
@@ -6190,6 +6143,7 @@ GP_RST.lastSetup = setup
 GP_RST.lastRound = rs
 end
 function GP_RST_TickQueuedStart()
+if GP_RST == nil then GP_RST = {} end
 local t = GP_RST_Now()
 if (GP_RST.queueAt or 0) > 0 and t >= GP_RST.queueAt then
 GP_RST.queueAt = 0
@@ -6268,6 +6222,7 @@ end
 GP_RST_TickForce()
 end
 function GP_RST_OnEvent(name, ev)
+if GP_RST == nil then GP_RST = {} end
 GP_RST.lastEvent = name or "none"
 if name == "mvm_begin_wave" then
 local idx = GP_SafeCall(function() return ev and ev.GetInt and ev:GetInt("wave_index") end, nil)
@@ -6518,6 +6473,9 @@ return true
 end
 gp_partyLeaveLastTrigger = now
 pcall(function()
+if gamecoordinator and gamecoordinator.AbandonMatch then
+gamecoordinator.AbandonMatch()
+end
 if client and client.Command then
 client.Command("disconnect", true)
 end
@@ -6578,7 +6536,6 @@ tpLastForceToggleAt = 0
 end
 end
 CheckServerChange()
-GP_AutoDisconnectTick()
 GP_RST_TickState()
 GP_RST_TickQueuedStart()
 GP_TryCaptureHotkey()
@@ -7833,7 +7790,6 @@ hideHotkeysInUI = false,
 hideInfoPopups = false,
 partyGpKillEnabled = false,
 partyGpLeaveEnabled = false,
-autoDisconnectEnabled = false,
 autoWalkEnabled = false,
 autoBuyEnabled = false,
 forceSniperBuyEnabled = false,
@@ -7903,7 +7859,7 @@ callbacks.Register("SendStringCmd", "gp_gm_ui_reset_cmd", GP_UIResetCmd)
 do
 GhostMoney.Modules = GhostMoney.Modules or {}
 
-function __GM_bind(bucket, alias, gname)
+local function __GM_bind(bucket, alias, gname)
 GhostMoney.Modules[bucket] = GhostMoney.Modules[bucket] or {}
 local fn = _G[gname]
 if type(fn) == "function" then
