@@ -5187,7 +5187,7 @@ local lwFR = draw.GetTextSize(lowerFarRight)
 local totalLower = lwL + lwG + lwM + lwG2 + lwR + lwG3 + lwFR
 local centerX = watermarkX + (width / 2) - (totalLower / 2)
 if config.autoWalkEnabled or autoModeWalkActive then
-UI_Color(table.unpack(GP_UI.colors.gold))
+UI_Color(GP_UI.colors.gold[1], GP_UI.colors.gold[2], GP_UI.colors.gold[3], infoA)
 else
 UI_Color(table.unpack(GP_UI.colors.textDim))
 end
@@ -5195,7 +5195,7 @@ SafeText(centerX, watermarkY + 22, lowerLeft)
 UI_Color(table.unpack(GP_UI.colors.textDim))
 SafeText(centerX + lwL, watermarkY + 22, lowerGap)
 if globals.CurTime() < cleanupFlashUntil then
-UI_Color(table.unpack(GP_UI.colors.gold))
+UI_Color(GP_UI.colors.gold[1], GP_UI.colors.gold[2], GP_UI.colors.gold[3], infoA)
 else
 UI_Color(table.unpack(GP_UI.colors.textDim))
 end
@@ -5205,7 +5205,7 @@ SafeText(centerX + lwL + lwG + lwM, watermarkY + 22, lowerGap2)
 if forceSniperBuyModeEnabled then
 UI_Color(255, 140, 0, infoA)
 elseif config.autoBuyEnabled then
-UI_Color(table.unpack(GP_UI.colors.gold))
+UI_Color(GP_UI.colors.gold[1], GP_UI.colors.gold[2], GP_UI.colors.gold[3], infoA)
 else
 UI_Color(table.unpack(GP_UI.colors.textDim))
 end
@@ -5215,7 +5215,7 @@ SafeText(centerX + lwL + lwG + lwM + lwG2 + lwR, watermarkY + 22, lowerGap3)
 if tpForceModeEnabled then
 UI_Color(255, 140, 0, infoA)
 elseif config.tpWalkEnabled then
-UI_Color(table.unpack(GP_UI.colors.gold))
+UI_Color(GP_UI.colors.gold[1], GP_UI.colors.gold[2], GP_UI.colors.gold[3], infoA)
 else
 UI_Color(table.unpack(GP_UI.colors.textDim))
 end
@@ -6456,6 +6456,9 @@ return true
 end
 gp_partyLeaveLastTrigger = now
 pcall(function()
+if gamecoordinator and gamecoordinator.AbandonMatch then
+gamecoordinator.AbandonMatch()
+end
 if client and client.Command then
 client.Command("disconnect", true)
 end
